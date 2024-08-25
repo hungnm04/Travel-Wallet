@@ -1,6 +1,4 @@
-enum ExpenseCategory{
-    ACCOMMODATION, FOOD, TRANSPORT, ENTERTAINMENT, CLOTHES, FUEL, GIFTS, TICKETS, OTHER
-}
+package model;
 
 public record Expense(double amount, ExpenseCategory category, String currency, String description) {
     public Expense {

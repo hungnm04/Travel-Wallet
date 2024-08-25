@@ -1,21 +1,28 @@
+package service;
+
+import model.Expense;
+import model.ExpenseCategory;
+import model.SubTrip;
+import model.Trip;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class TravelWallet {
+public class TravelWalletUseCaseImpl implements TravelWalletUseCase {
     private final List<Trip> trips;
     private final CurrencyConverter currencyConverter;
 
-    public TravelWallet(CurrencyConverter converter) {
+    public TravelWalletUseCaseImpl(CurrencyConverter currencyConverter) {
         this.trips = new ArrayList<>();
-        this.currencyConverter = converter;
+        this.currencyConverter = currencyConverter;
     }
 
-
+    @Override
     public void addTrip(Trip trip) {
         trips.add(trip);
     }
 
-
+    @Override
     public boolean addExpense(String tripName, Expense expense) {
         Trip trip = findTrip(tripName);
         if (trip == null) {
@@ -30,8 +37,8 @@ public class TravelWallet {
         return true;
     }
 
-
-    Trip findTrip(String tripName) {
+    @Override
+    public Trip findTrip(String tripName) {
         for (Trip trip : trips) {
             if (trip.getName().equals(tripName)) {
                 return trip;
@@ -40,7 +47,7 @@ public class TravelWallet {
         return null;
     }
 
-
+    @Override
     public double getTotalExpenses(String tripName, String targetCurrency) {
         Trip trip = findTrip(tripName);
         if (trip == null) {
@@ -56,6 +63,7 @@ public class TravelWallet {
         return total;
     }
 
+    @Override
     public void printTripSummary(String tripName, String currency) {
         Trip trip = findTrip(tripName);
         if (trip == null) {
@@ -66,7 +74,6 @@ public class TravelWallet {
         System.out.println("Trip: " + trip.getName());
         System.out.println("Date: " + trip.getStartDate() + " to " + trip.getEndDate());
 
-        // Convert budget to the target currency
         double convertedBudget = currencyConverter.convert(trip.getBudget(), "VND", currency);
         System.out.println("Budget: " + String.format("%.2f", convertedBudget) + " " + currency);
 
@@ -79,18 +86,24 @@ public class TravelWallet {
             System.out.printf("- %s: %.2f %s%n", expense.description(), convertedAmount, currency);
         }
 
-        for(SubTrip subTrip : trip.getSubTrips()){
+        for (SubTrip subTrip : trip.getSubTrips()) {
             System.out.println("SubTrip: " + subTrip.getName());
             double subTripTotal = 0;
+
             for (Expense expense : subTrip.getExpenses()) {
                 double convertedAmount = currencyConverter.convert(expense.amount(), expense.currency(), currency);
                 subTripTotal += convertedAmount;
                 totalSpent += convertedAmount;
                 System.out.printf("  - %s: %.2f %s%n", expense.description(), convertedAmount, currency);
             }
+
+            int numberOfPeople = subTrip.getNumberOfPeople();
+            double expensePerPerson = subTripTotal / numberOfPeople;
+
             System.out.printf("  Total for SubTrip: %.2f %s%n", subTripTotal, currency);
-            System.out.printf("  Expense per person: %.2f %s%n", subTrip.calculateExpensePerPerson(), currency);
+            System.out.printf("  Expense per person: %.2f %s%n", expensePerPerson, currency);
         }
+
 
         double remainingBudget = convertedBudget - totalSpent;
 
@@ -102,7 +115,7 @@ public class TravelWallet {
         }
     }
 
-
+    @Override
     public List<Expense> getExpensesByCategory(ExpenseCategory category) {
         List<Expense> categoryExpenses = new ArrayList<>();
         for (Trip trip : trips) {
@@ -114,5 +127,4 @@ public class TravelWallet {
         }
         return categoryExpenses;
     }
-
 }

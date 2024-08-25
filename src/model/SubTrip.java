@@ -1,3 +1,5 @@
+package model;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +15,10 @@ public class SubTrip {
         this.name = name;
         this.numberOfPeople = numberOfPeople;
         this.expenses = new ArrayList<>();
+    }
+
+    public int getNumberOfPeople() {
+        return numberOfPeople;
     }
 
     public void addExpense(Expense expense) {

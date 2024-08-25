@@ -1,0 +1,5 @@
+package model;
+
+public enum ExpenseCategory{
+    ACCOMMODATION, FOOD, TRANSPORT, ENTERTAINMENT, CLOTHES, FUEL, GIFTS, TICKETS, OTHER
+}
