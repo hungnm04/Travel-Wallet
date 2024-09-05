@@ -1,11 +1,11 @@
 package controller;
 
 import model.Expense;
-import model.ExpenseCategory;
+import model.SubTrip;
 import model.Trip;
 import service.TravelWalletUseCase;
 
-import java.util.List;
+import java.time.LocalDate;
 
 public class TravelWalletController {
     private final TravelWalletUseCase travelWalletUseCase;
@@ -14,29 +14,19 @@ public class TravelWalletController {
         this.travelWalletUseCase = travelWalletUseCase;
     }
 
-    public void addTrip(Trip trip) {
-        travelWalletUseCase.addTrip(trip);
+    public Trip createTrip(String name, LocalDate startDate, LocalDate endDate, double budget) {
+        return travelWalletUseCase.createTrip(name, startDate, endDate, budget);
     }
 
     public boolean addExpense(String tripName, Expense expense) {
         return travelWalletUseCase.addExpense(tripName, expense);
     }
 
-    public double getTotalExpenses(String tripName, String targetCurrency) {
-        return travelWalletUseCase.getTotalExpenses(tripName, targetCurrency);
+    public boolean addSubTrip(String tripName, SubTrip subTrip) {
+        return travelWalletUseCase.addSubTrip(tripName, subTrip);
     }
 
     public void printTripSummary(String tripName, String currency) {
         travelWalletUseCase.printTripSummary(tripName, currency);
     }
-
-    public List<Expense> getExpensesByCategory(ExpenseCategory category) {
-        return travelWalletUseCase.getExpensesByCategory(category);
-    }
-
-    public Trip findTrip(String tripName) {
-        return travelWalletUseCase.findTrip(tripName);
-    }
-
-
 }

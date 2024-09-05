@@ -12,7 +12,7 @@ Features
 
 Installation
 - Clone the Repository
-- Running on intelij the TravelWalletApp class
+- Running on idea the application.TravelWalletApp class
 
 Code Structure
 - TravelWallet: Main application class for managing trips, expenses, and currency conversion.

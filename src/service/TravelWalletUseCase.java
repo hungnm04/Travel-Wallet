@@ -1,16 +1,20 @@
 package service;
 
 import model.Expense;
-import model.ExpenseCategory;
+import model.SubTrip;
 import model.Trip;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface TravelWalletUseCase {
-    void addTrip(Trip trip);
-    Trip findTrip(String tripName);
+    Trip createTrip(String name, LocalDate startDate, LocalDate endDate, double budget);
     boolean addExpense(String tripName, Expense expense);
-    double getTotalExpenses(String tripName, String targetCurrency);
+    boolean addSubTrip(String tripName, SubTrip subTrip);
+    Trip findTrip(String tripName);
+    List<SubTrip> getSubTrips(String tripName);
+    List<Expense> getTripExpenses(String tripName);
+    double getTripBudget(String tripName);
+    double getTripTotal(String tripName);
     void printTripSummary(String tripName, String currency);
-    List<Expense> getExpensesByCategory(ExpenseCategory category);
 }
