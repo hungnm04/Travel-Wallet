@@ -1,29 +1,32 @@
 package service;
 
-public class SimpleCurrencyConverter implements CurrencyConverter {
+import java.util.Currency;
+
+public class USDCurrency implements CurrencyConverter {
+    private static final double USD_TO_VND = 25125;
 
     @Override
-    public double convert(double value, String fromCur, String toCur) {
-        if (fromCur.equals(toCur)) {
-            return value;
-        }
+    public double toVND(double value) {
+        return value * USD_TO_VND;
+    }
 
-        // Convert from the source to VND
-        double inVND = switch (fromCur) {
-            case "USD" -> value * 25125;  // 1 USD = 25,125 VND
-            case "EUR" -> value * 27486;  // 1 EUR = 27,486 VND
-            case "GBP" -> value * 31500;  // 1 GBP = 31,500 VND
-            case "VND" -> value;
-            default -> throw new IllegalArgumentException("Unsupported currency: " + fromCur);
-        };
-
-        // Convert from VND to the target
-        return switch (toCur) {
-            case "USD" -> inVND / 25125;
-            case "EUR" -> inVND / 27486;
-            case "GBP" -> inVND / 31500;
-            case "VND" -> inVND;
-            default -> throw new IllegalArgumentException("Unsupported currency: " + toCur);
-        };
+    @Override
+    public double fromVND(double value) {
+        return value / USD_TO_VND;
     }
 }
+
+public class EURCurrency implements Currency {
+    private static final double EUR_TO_VND = 27486;
+
+    @Override
+    public double toVND(double value) {
+        return value * EUR_TO_VND;
+    }
+
+    @Override
+    public double fromVND(double value) {
+        return value / EUR_TO_VND;
+    }
+}
+
