@@ -16,6 +16,9 @@ public class Trip {
         if (budget <= 0) {
             throw new IllegalArgumentException("Budget must be positive");
         }
+        if (endDate.isBefore(startDate)) {
+            throw new IllegalArgumentException("End date cannot be before start date");
+        }
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -31,16 +34,20 @@ public class Trip {
     public List<Expense> getExpenses() { return new ArrayList<>(expenses); }
     public List<SubTrip> getSubTrips() { return new ArrayList<>(subTrips); }
 
+    public void addExpense(Expense expense) {
+        expenses.add(expense);
+    }
 
-    public void addExpense(Expense expense) { this.expenses.add(expense); }
-    public void addSubTrip(SubTrip subTrip) { this.subTrips.add(subTrip); }
+    public void addSubTrip(SubTrip subTrip) {
+        subTrips.add(subTrip);
+    }
 
     public double getTotal() {
         double total = 0;
-        for(var i : expenses){
-            total += i.amount();
+        for (Expense expense : expenses) {
+            total += expense.getAmount();
         }
-        for(SubTrip subTrip : subTrips){
+        for (SubTrip subTrip : subTrips) {
             total += subTrip.getTotalCost();
         }
         return total;

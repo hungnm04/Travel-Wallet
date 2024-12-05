@@ -1,11 +1,10 @@
 package service;
 
+import java.time.LocalDate;
+import java.util.List;
 import model.Expense;
 import model.SubTrip;
 import model.Trip;
-
-import java.time.LocalDate;
-import java.util.List;
 
 public interface TravelWalletUseCase {
     Trip createTrip(String name, LocalDate startDate, LocalDate endDate, double budget);

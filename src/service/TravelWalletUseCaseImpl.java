@@ -1,15 +1,16 @@
 package service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import model.Expense;
 import model.SubTrip;
 import model.Trip;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
 public class TravelWalletUseCaseImpl implements TravelWalletUseCase {
-    private final List<Trip> trips = new ArrayList<>();
+    private final Map<String, Trip> trips = new HashMap<>();
     private final CurrencyConverter currencyConverter;
 
     public TravelWalletUseCaseImpl(CurrencyConverter currencyConverter) {
@@ -18,8 +19,12 @@ public class TravelWalletUseCaseImpl implements TravelWalletUseCase {
 
     @Override
     public Trip createTrip(String name, LocalDate startDate, LocalDate endDate, double budget) {
+        String key = name.toLowerCase();
+        if (trips.containsKey(key)) {
+            throw new IllegalArgumentException("Trip already exists with name: " + name);
+        }
         Trip newTrip = new Trip(name, startDate, endDate, budget);
-        trips.add(newTrip);
+        trips.put(key, newTrip);
         return newTrip;
     }
 
@@ -30,7 +35,7 @@ public class TravelWalletUseCaseImpl implements TravelWalletUseCase {
             trip.addExpense(expense);
             return true;
         }
-        return false;
+        throw new IllegalArgumentException("Trip not found: " + tripName);
     }
 
     @Override
@@ -40,15 +45,12 @@ public class TravelWalletUseCaseImpl implements TravelWalletUseCase {
             trip.addSubTrip(subTrip);
             return true;
         }
-        return false;
+        throw new IllegalArgumentException("Trip not found: " + tripName);
     }
 
     @Override
     public Trip findTrip(String tripName) {
-        return trips.stream()
-                .filter(trip -> trip.getName().equalsIgnoreCase(tripName))
-                .findFirst()
-                .orElse(null);
+        return trips.get(tripName.toLowerCase());
     }
 
     @Override
@@ -83,17 +85,17 @@ public class TravelWalletUseCaseImpl implements TravelWalletUseCase {
             return;
         }
 
-        System.out.println("Trip: " + trip.getName());
+        System.out.println("\nTrip: " + trip.getName());
         System.out.println("Date: " + trip.getStartDate() + " to " + trip.getEndDate());
 
         double convertedBudget = currencyConverter.convert(trip.getBudget(), "VND", currency);
-        System.out.println("Budget: " + String.format("%.2f", convertedBudget) + " " + currency);
+        System.out.printf("Budget: %.2f %s%n", convertedBudget, currency);
 
-        System.out.println("Expenses:");
+        System.out.println("\nExpenses:");
         double totalSpent = printExpenses(trip.getExpenses(), currency, 0);
 
         for (SubTrip subTrip : trip.getSubTrips()) {
-            System.out.println("SubTrip: " + subTrip.getName());
+            System.out.println("\nSubTrip: " + subTrip.getName());
             double subTripTotal = printExpenses(subTrip.getExpenses(), currency, 2);
             totalSpent += subTripTotal;
 
@@ -103,7 +105,7 @@ public class TravelWalletUseCaseImpl implements TravelWalletUseCase {
 
         double remainingBudget = convertedBudget - totalSpent;
 
-        System.out.printf("Total spent: %.2f %s%n", totalSpent, currency);
+        System.out.printf("\nTotal spent: %.2f %s%n", totalSpent, currency);
         System.out.printf("Remaining budget: %.2f %s%n", remainingBudget, currency);
 
         if (remainingBudget < 0) {
@@ -115,9 +117,9 @@ public class TravelWalletUseCaseImpl implements TravelWalletUseCase {
         double total = 0;
         String indent = " ".repeat(indentation);
         for (Expense expense : expenses) {
-            double convertedAmount = currencyConverter.convert(expense.amount(), expense.currency(), targetCurrency);
+            double convertedAmount = currencyConverter.convert(expense.getAmount(), expense.getCurrency(), targetCurrency);
             total += convertedAmount;
-            System.out.printf("%s- %s: %.2f %s%n", indent, expense.description(), convertedAmount, targetCurrency);
+            System.out.printf("%s- %s: %.2f %s%n", indent, expense.getDescription(), convertedAmount, targetCurrency);
         }
         return total;
     }

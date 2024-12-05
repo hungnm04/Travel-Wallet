@@ -1,11 +1,10 @@
 package controller;
 
+import java.time.LocalDate;
 import model.Expense;
 import model.SubTrip;
 import model.Trip;
 import service.TravelWalletUseCase;
-
-import java.time.LocalDate;
 
 public class TravelWalletController {
     private final TravelWalletUseCase travelWalletUseCase;

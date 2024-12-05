@@ -28,7 +28,7 @@ public class SubTrip {
     public double getTotalCost() {
         double totalCost = 0;
         for (Expense expense : expenses) {
-            totalCost += expense.amount();
+            totalCost += expense.getAmount();
         }
         return totalCost;
     }

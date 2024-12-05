@@ -1,128 +1,118 @@
 package application;
 
 import controller.TravelWalletController;
+import java.time.LocalDate;
 import model.Expense;
 import model.ExpenseCategory;
 import model.SubTrip;
-import model.Trip;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.Scanner;
+import utils.InputUtils;
+import utils.MenuException;
 
 public class MenuMethods {
-
     private final TravelWalletController controller;
-    private final Scanner scanner;
+    private final InputUtils inputUtils;
 
-    public MenuMethods(TravelWalletController controller, Scanner scanner) {
+    public MenuMethods(TravelWalletController controller, InputUtils inputUtils) {
         this.controller = controller;
-        this.scanner = scanner;
+        this.inputUtils = inputUtils;
     }
 
     public void addTrip() {
-        String name = getStringInput("Enter trip name: ");
-        LocalDate startDate = getDateInput("Enter start date (yyyy-MM-dd): ");
-        LocalDate endDate = getDateInput("Enter end date (yyyy-MM-dd): ");
-        double budget = getDoubleInput("Enter trip budget: ");
+        try {
+            String name = inputUtils.getStringInput("Enter trip name");
+            LocalDate startDate = inputUtils.getDateInput("Enter start date (yyyy-MM-dd)");
+            LocalDate endDate;
 
-        Trip newTrip = controller.createTrip(name, startDate, endDate, budget);
-        if (newTrip != null) {
-            System.out.println("Trip added successfully.");
-        } else {
-            System.out.println("Failed to add trip. Please try again.");
+            while (true) {
+                endDate = inputUtils.getDateInput("Enter end date (yyyy-MM-dd)");
+                if (endDate.isAfter(startDate)) {
+                    break;
+                } else if (endDate.isEqual(startDate)) {
+                    System.out.println("End date must be different from the start date. Please try again.");
+                } else {
+                    System.out.println("End date must be after the start date. Please try again.");
+                }
+            }
+
+            double budget = inputUtils.getDoubleInput("Enter trip budget");
+
+            try {
+                controller.createTrip(name, startDate, endDate, budget);
+                System.out.println("Trip added successfully.");
+            } catch (IllegalArgumentException e) {
+                System.out.println("Failed to add trip: " + e.getMessage());
+            }
+        } catch (MenuException e) {
+            System.out.println(e.getMessage());
         }
     }
 
     public void addExpense() {
-        String tripName = getStringInput("Enter trip name: ");
-        double amount = getDoubleInput("Enter expense amount: ");
-        String currency = getStringInput("Enter currency (USD, EUR, GBP, VND): ").toUpperCase();
-        ExpenseCategory category = getExpenseCategory();
-        String description = getStringInput("Enter description: ");
+        try {
+            String tripName = inputUtils.getStringInput("Enter trip name");
+            double amount = inputUtils.getDoubleInput("Enter expense amount");
+            String currency = inputUtils.getStringInput("Enter currency (USD, EUR, GBP, VND)").toUpperCase();
+            ExpenseCategory category = getExpenseCategory();
+            String description = inputUtils.getStringInput("Enter description");
 
-        Expense newExpense = new Expense(amount, category, currency, description);
-        if (controller.addExpense(tripName, newExpense)) {
-            System.out.println("Expense added successfully.");
-        } else {
-            System.out.println("Failed to add expense. Please try again.");
+            try {
+                Expense newExpense = new Expense(amount, category, currency, description);
+                controller.addExpense(tripName, newExpense);
+                System.out.println("Expense added successfully.");
+            } catch (IllegalArgumentException e) {
+                System.out.println("Failed to add expense: " + e.getMessage());
+            }
+        } catch (MenuException e) {
+            System.out.println(e.getMessage());
         }
     }
 
     public void addSubTrip() {
-        String tripName = getStringInput("Enter the name of the trip to add a subtrip to: ");
-        String subTripName = getStringInput("Enter subtrip name: ");
-        int numberOfPeople = getIntInput("Enter number of people in subtrip: ");
+        try {
+            String tripName = inputUtils.getStringInput("Enter the name of the trip to add a subtrip to");
+            String subTripName = inputUtils.getStringInput("Enter subtrip name");
+            int numberOfPeople = inputUtils.getIntInput("Enter number of people in subtrip");
 
-        SubTrip subTrip = new SubTrip(subTripName, numberOfPeople);
+            SubTrip subTrip = new SubTrip(subTripName, numberOfPeople);
 
-        if (controller.addSubTrip(tripName, subTrip)) {
-            System.out.println("SubTrip added successfully.");
-        } else {
-            System.out.println("Failed to add SubTrip. Please try again.");
+            try {
+                controller.addSubTrip(tripName, subTrip);
+                System.out.println("SubTrip added successfully.");
+            } catch (IllegalArgumentException e) {
+                System.out.println("Failed to add SubTrip: " + e.getMessage());
+            }
+        } catch (MenuException e) {
+            System.out.println(e.getMessage());
         }
     }
 
     public void viewTripSummary() {
-        String tripName = getStringInput("Enter trip name: ");
-        String currency = getStringInput("Enter currency for summary (USD, EUR, GBP, VND): ").toUpperCase();
+        try {
+            String tripName = inputUtils.getStringInput("Enter trip name");
+            String currency = inputUtils.getStringInput("Enter currency for summary (USD, EUR, GBP, VND)").toUpperCase();
 
-        controller.printTripSummary(tripName, currency);
-    }
-
-    public int getIntInput(String prompt) {
-        System.out.print(prompt);
-        while (!scanner.hasNextInt()) {
-            System.out.println("That's not a valid number. Please try again.");
-            scanner.next();
+            controller.printTripSummary(tripName, currency);
+        } catch (MenuException e) {
+            System.out.println(e.getMessage());
         }
-        int input = scanner.nextInt();
-        scanner.nextLine();
-        return input;
-    }
-
-    public String getStringInput(String prompt) {
-        System.out.print(prompt);
-        return scanner.nextLine().trim();
-    }
-
-    public LocalDate getDateInput(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            String dateStr = scanner.nextLine();
-            try {
-                return LocalDate.parse(dateStr);
-            } catch (DateTimeParseException e) {
-                System.out.println("Invalid date format. Please use yyyy-MM-dd.");
-            }
-        }
-    }
-
-    public double getDoubleInput(String prompt) {
-        System.out.print(prompt);
-        while (!scanner.hasNextDouble()) {
-            System.out.println("That's not a valid number. Please try again.");
-            scanner.next();
-        }
-        double result = scanner.nextDouble();
-        scanner.nextLine();
-        return result;
     }
 
     private ExpenseCategory getExpenseCategory() {
         System.out.println("Select category:");
-        for (ExpenseCategory category : ExpenseCategory.values()) {
-            System.out.println(category.ordinal() + 1 + ". " + category);
+        ExpenseCategory[] categories = ExpenseCategory.values();
+        for (int i = 0; i < categories.length; i++) {
+            System.out.println((i + 1) + ". " + categories[i]);
         }
-        int categoryChoice;
+
+        int choice;
         while (true) {
-            categoryChoice = getIntInput("Enter category number: ");
-            if (categoryChoice > 0 && categoryChoice <= ExpenseCategory.values().length) {
+            choice = inputUtils.getIntInput("Enter category number");
+            if (choice >= 1 && choice <= categories.length) {
                 break;
             } else {
-                System.out.println("Invalid category. Please select a valid category number.");
+                System.out.println("Invalid category. Please try again.");
             }
         }
-        return ExpenseCategory.values()[categoryChoice - 1];
+        return categories[choice - 1];
     }
 }

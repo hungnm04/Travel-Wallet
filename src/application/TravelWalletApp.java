@@ -1,13 +1,13 @@
 package application;
 
 import controller.TravelWalletController;
+import java.util.Scanner;
 import service.CurrencyConverter;
 import service.SimpleCurrencyConverter;
 import service.TravelWalletUseCase;
 import service.TravelWalletUseCaseImpl;
+import utils.InputUtils;
 import view.MenuView;
-
-import java.util.Scanner;
 
 public class TravelWalletApp {
     public static void main(String[] args) {
@@ -16,8 +16,9 @@ public class TravelWalletApp {
         TravelWalletController controller = new TravelWalletController(travelWalletUseCase);
 
         Scanner scanner = new Scanner(System.in);
-        MenuMethods menuMethods = new MenuMethods(controller, scanner);
-        MenuView menuView = new MenuView(scanner, menuMethods);
+        InputUtils inputUtils = new InputUtils(scanner);
+        MenuMethods menuMethods = new MenuMethods(controller, inputUtils);
+        MenuView menuView = new MenuView(menuMethods, inputUtils);
 
         menuView.run();
     }
